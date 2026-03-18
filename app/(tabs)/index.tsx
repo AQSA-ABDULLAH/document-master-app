@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Reusable Component for Tool Icons
 const ToolIcon = ({
   icon,
   label,
@@ -30,7 +29,7 @@ const ToolIcon = ({
       <MaterialCommunityIcons name={icon} size={28} color={color} />
     </View>
     <Text
-      className="text-white text-[11px] mt-2 font-medium text-center"
+      className="text-[11px] mt-2 font-medium text-center"
       numberOfLines={1}
     >
       {label}
@@ -40,25 +39,23 @@ const ToolIcon = ({
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-[#0F172A]">
+    <SafeAreaView className="flex-1">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* 1. Header & Search Bar */}
         <View className="px-5 pt-4">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white text-2xl font-bold italic">
-              DocMaster
-            </Text>
+            <Text className=" text-2xl font-bold italic">Document Master</Text>
             <TouchableOpacity>
               {/* <Ionicons name="crown" size={24} color="#FBBF24" /> */}
             </TouchableOpacity>
           </View>
 
-          <View className="bg-slate-800/50 flex-row items-center px-4 py-3 rounded-2xl border border-slate-700">
+          <View className="flex-row items-center px-4 py-3 rounded-2xl border border-slate-700">
             <Ionicons name="search-outline" size={20} color="#94A3B8" />
             <TextInput
               placeholder="Search documents and tools..."
               placeholderTextColor="#64748B"
-              className="ml-3 text-white flex-1"
+              className="ml-3 flex-1"
             />
           </View>
         </View>
@@ -118,7 +115,7 @@ export default function HomeScreen() {
         {/* 3. Recent Section (Based on Ref 3) */}
         <View className="px-5 mt-6 pb-20">
           <View className="flex-row justify-between items-center mb-10">
-            <Text className="text-white text-lg font-bold">Recent Files</Text>
+            <Text className=" text-lg font-bold">Recent Files</Text>
             <TouchableOpacity>
               <Text className="text-indigo-400">View All</Text>
             </TouchableOpacity>
@@ -133,9 +130,7 @@ export default function HomeScreen() {
                 color="#4F46E5"
               />
             </View>
-            <Text className="text-white text-lg font-semibold">
-              No files yet
-            </Text>
+            <Text className="text-lg font-semibold">No files yet</Text>
             <Text className="text-slate-400 text-center mt-2 px-10">
               Start scanning documents or import images to see your files here.
             </Text>
