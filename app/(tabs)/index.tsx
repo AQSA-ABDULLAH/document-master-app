@@ -1,98 +1,159 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// app/(tabs)/index.tsx
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+// Reusable Component for Tool Icons
+const ToolIcon = ({
+  icon,
+  label,
+  color,
+  bgColor,
+}: {
+  icon: any;
+  label: string;
+  color: string;
+  bgColor: string;
+}) => (
+  <TouchableOpacity className="items-center justify-center w-[22%] mb-5">
+    <View
+      className={`w-14 h-14 rounded-2xl items-center justify-center ${bgColor}`}
+    >
+      <MaterialCommunityIcons name={icon} size={28} color={color} />
+    </View>
+    <Text
+      className="text-white text-[11px] mt-2 font-medium text-center"
+      numberOfLines={1}
+    >
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView className="flex-1 bg-[#0F172A]">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* 1. Header & Search Bar */}
+        <View className="px-5 pt-4">
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-white text-2xl font-bold italic">
+              DocMaster
+            </Text>
+            <TouchableOpacity>
+              {/* <Ionicons name="crown" size={24} color="#FBBF24" /> */}
+            </TouchableOpacity>
+          </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          <View className="bg-slate-800/50 flex-row items-center px-4 py-3 rounded-2xl border border-slate-700">
+            <Ionicons name="search-outline" size={20} color="#94A3B8" />
+            <TextInput
+              placeholder="Search documents and tools..."
+              placeholderTextColor="#64748B"
+              className="ml-3 text-white flex-1"
+            />
+          </View>
+        </View>
+
+        {/* 2. Quick Tools Grid (Based on Ref 1 & 2) */}
+        <View className="px-5 mt-8 flex-row flex-wrap justify-between">
+          <ToolIcon
+            icon="auto-fix"
+            label="Smart Scan"
+            color="#6366F1"
+            bgColor="bg-indigo-500/20"
+          />
+          <ToolIcon
+            icon="image-multiple"
+            label="Images"
+            color="#A855F7"
+            bgColor="bg-purple-500/20"
+          />
+          <ToolIcon
+            icon="file-pdf-box"
+            label="PDF Tools"
+            color="#EF4444"
+            bgColor="bg-red-500/20"
+          />
+          <ToolIcon
+            icon="file-word"
+            label="PDF to Word"
+            color="#3B82F6"
+            bgColor="bg-blue-500/20"
+          />
+          <ToolIcon
+            icon="card-account-details"
+            label="ID Card"
+            color="#10B981"
+            bgColor="bg-emerald-500/20"
+          />
+          <ToolIcon
+            icon="passport"
+            label="Passport"
+            color="#F59E0B"
+            bgColor="bg-amber-500/20"
+          />
+          <ToolIcon
+            icon="text-recognition"
+            label="OCR Text"
+            color="#EC4899"
+            bgColor="bg-pink-500/20"
+          />
+          <ToolIcon
+            icon="dots-grid"
+            label="More"
+            color="#94A3B8"
+            bgColor="bg-slate-700/30"
+          />
+        </View>
+
+        {/* 3. Recent Section (Based on Ref 3) */}
+        <View className="px-5 mt-6 pb-20">
+          <View className="flex-row justify-between items-center mb-10">
+            <Text className="text-white text-lg font-bold">Recent Files</Text>
+            <TouchableOpacity>
+              <Text className="text-indigo-400">View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Empty State Illustration */}
+          <View className="items-center justify-center py-10">
+            <View className="bg-indigo-500/10 p-8 rounded-full mb-4">
+              <Ionicons
+                name="document-text-outline"
+                size={80}
+                color="#4F46E5"
+              />
+            </View>
+            <Text className="text-white text-lg font-semibold">
+              No files yet
+            </Text>
+            <Text className="text-slate-400 text-center mt-2 px-10">
+              Start scanning documents or import images to see your files here.
+            </Text>
+
+            <TouchableOpacity className="mt-6 border border-indigo-500 px-8 py-3 rounded-full">
+              <Text className="text-indigo-400 font-bold">Scan Now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* 4. Floating Action Button (FAB) - Camera */}
+      <TouchableOpacity
+        style={{ elevation: 10 }}
+        className="absolute bottom-6 right-6 w-16 h-16 bg-indigo-600 rounded-full items-center justify-center shadow-lg shadow-indigo-500"
+      >
+        <Ionicons name="camera" size={30} color="white" />
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
