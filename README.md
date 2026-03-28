@@ -21,5 +21,5 @@ In the output, you'll find options to open the app in a
 
 ## Git Repositories for this project
 
-- islam-daily-app: https://github.com/AQSA-ABDULLAH/islam-daily-app
-- islam-daily-server: https://github.com/AQSA-ABDULLAH/islam-daily-server
+- document-master-app: https://github.com/AQSA-ABDULLAH/document-master-app
+- document-master-server: https://github.com/AQSA-ABDULLAH/document-master-server
