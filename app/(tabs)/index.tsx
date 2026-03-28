@@ -1,6 +1,7 @@
 // app/(tabs)/index.tsx
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -37,7 +38,10 @@ const ToolIcon = ({
   </TouchableOpacity>
 );
 
+
 export default function HomeScreen() {
+
+  const router = useRouter();
   return (
     <SafeAreaView className="flex-1">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -144,6 +148,7 @@ export default function HomeScreen() {
 
       {/* 4. Floating Action Button (FAB) - Camera */}
       <TouchableOpacity
+        onPress={() => router.push("/camera")}
         style={{ elevation: 10 }}
         className="absolute bottom-6 right-6 w-16 h-16 bg-indigo-600 rounded-full items-center justify-center shadow-lg shadow-indigo-500"
       >
