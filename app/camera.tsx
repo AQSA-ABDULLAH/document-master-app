@@ -2,10 +2,15 @@
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -13,27 +18,40 @@ export default function CameraScreen() {
   const router = useRouter();
   const [mode, setMode] = useState("Single");
 
-  const modes = [
-    "Extract Text",
-    "To Word",
-    "Single",
-    "Batch",
-    "ID Cards",
-    "Passport",
-  ];
+  // --- Native Permission Trigger ---
+  useEffect(() => {
+    // Agar permission abhi tak nahi mili aur na hi request ki gayi hai
+    if (permission && !permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission]);
 
-  if (!permission) return <View className="flex-1 bg-black" />;
+  // Loading state jab tak permission load ho rahi ho
+  if (!permission) {
+    return (
+      <View className="flex-1 bg-black items-center justify-center">
+        <ActivityIndicator size="large" color="#10B981" />
+      </View>
+    );
+  }
+
+  // Agar user ne permission permanently deny kar di ho (Setting se on karni hogi)
   if (!permission.granted) {
     return (
       <View className="flex-1 items-center justify-center bg-black px-10">
-        <Text className="text-white text-center text-lg">
-          We need your permission to show the camera
+        <Ionicons name="camera-reverse-outline" size={60} color="#64748B" />
+        <Text className="text-white text-center text-lg mt-4 font-semibold">
+          Camera Access Required
+        </Text>
+        <Text className="text-slate-400 text-center mt-2">
+          Please enable camera permissions in your system settings to use the
+          scanner.
         </Text>
         <TouchableOpacity
-          className="bg-indigo-600 px-8 py-3 rounded-full mt-6"
+          className="bg-emerald-500 px-10 py-4 rounded-full mt-8"
           onPress={requestPermission}
         >
-          <Text className="text-white font-bold">Grant Permission</Text>
+          <Text className="text-white font-bold text-base">Try Again</Text>
         </TouchableOpacity>
       </View>
     );
@@ -50,10 +68,14 @@ export default function CameraScreen() {
   };
 
   return (
-    <View className="flex-1 bg-black">
-      <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef}>
-        <SafeAreaView className="flex-1 justify-between">
-          {/* 1. Top Bar */}
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <View className="flex-1 bg-black">
+        <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef}>
+          {/* Baaki ka UI code wahi rahay ga... */}
+
+          {/* ... (Existing UI code from previous response) */}
           <View className="flex-row justify-between items-center px-6 py-4">
             <TouchableOpacity onPress={() => router.back()}>
               <Ionicons name="close" size={30} color="white" />
@@ -71,22 +93,26 @@ export default function CameraScreen() {
             </View>
           </View>
 
-          {/* 2. Middle Viewfinder (Visual Guide) */}
           <View className="flex-1 items-center justify-center">
-            {/* ID Card ya Document Frame yahan draw kiya ja sakta hai */}
             <View className="w-[85%] h-64 border-2 border-emerald-400/50 rounded-lg" />
           </View>
 
-          {/* 3. Bottom Controls Container */}
           <View className="bg-black/40 pb-6">
-            {/* Mode Selector (Scrollable) */}
+            {/* Mode ScrollView and Action Buttons code... */}
             <View className="py-4">
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 20 }}
               >
-                {modes.map((m) => (
+                {[
+                  "Extract Text",
+                  "To Word",
+                  "Single",
+                  "Batch",
+                  "ID Cards",
+                  "Passport",
+                ].map((m) => (
                   <TouchableOpacity
                     key={m}
                     onPress={() => setMode(m)}
@@ -105,46 +131,36 @@ export default function CameraScreen() {
               </ScrollView>
             </View>
 
-            {/* Main Action Bar */}
             <View className="flex-row items-center justify-around px-4">
-              {/* All Features */}
               <TouchableOpacity className="items-center">
                 <Ionicons name="grid-outline" size={28} color="white" />
                 <Text className="text-white text-[10px] mt-1">
                   All Features
                 </Text>
               </TouchableOpacity>
-
-              {/* Import Images */}
               <TouchableOpacity className="items-center">
                 <Ionicons name="images-outline" size={28} color="white" />
                 <Text className="text-white text-[10px] mt-1">
                   Import Images
                 </Text>
               </TouchableOpacity>
-
-              {/* Capture Button */}
               <TouchableOpacity
                 onPress={takePicture}
                 className="w-20 h-20 rounded-full border-4 border-emerald-400 items-center justify-center"
               >
                 <View className="w-16 h-16 bg-white rounded-full" />
               </TouchableOpacity>
-
-              {/* Import Files */}
               <TouchableOpacity className="items-center">
                 <Ionicons name="folder-open-outline" size={28} color="white" />
                 <Text className="text-white text-[10px] mt-1">
                   Import Files
                 </Text>
               </TouchableOpacity>
-
-              {/* Empty Space for symmetry */}
               <View className="w-10" />
             </View>
           </View>
-        </SafeAreaView>
-      </CameraView>
-    </View>
+        </CameraView>
+      </View>
+    </>
   );
 }
