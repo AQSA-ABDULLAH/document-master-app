@@ -115,8 +115,9 @@ export default function CameraScreen() {
       {/* Force status bar icons to be light (white) */}
       <StatusBar
         barStyle="light-content"
-        backgroundColor="transparent"
+        backgroundColor="black"
         translucent
+        networkActivityIndicatorVisible={false}
       />
 
       <View className="flex-1 bg-black">
@@ -184,7 +185,7 @@ export default function CameraScreen() {
           {/* ── Bottom Controls ── */}
           <SafeAreaView
             edges={["bottom"]}
-            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+            style={{ backgroundColor: "rgba(0,0,0,1)" }}
           >
             <View className="py-4">
               <ScrollView
@@ -213,9 +214,7 @@ export default function CameraScreen() {
               </ScrollView>
             </View>
 
-            <View className="flex-row items-center justify-around px-4 pb-4">
-              <TouchableOpacity className="items-center" />
-
+            <View className="flex-row items-center justify-between px-[30px] pb-[16px]">
               <TouchableOpacity className="items-center">
                 <Ionicons name="images-outline" size={28} color="white" />
                 <Text className="text-white text-[10px] mt-1">
@@ -243,21 +242,21 @@ export default function CameraScreen() {
                   Import Files
                 </Text>
               </TouchableOpacity>
-
-              {mode === "Batch" && batchImages.length > 0 ? (
-                <TouchableOpacity
-                  onPress={proceedWithBatch}
-                  className="items-center"
-                >
-                  <CheckCircle color="#10B981" size={28} />
-                  <Text className="text-emerald-400 text-[10px] mt-1 font-bold">
-                    Done ({batchImages.length})
-                  </Text>
-                </TouchableOpacity>
-              ) : (
-                <View className="w-10" />
-              )}
             </View>
+
+            {mode === "Batch" && batchImages.length > 0 ? (
+              <TouchableOpacity
+                onPress={proceedWithBatch}
+                className="items-center"
+              >
+                <CheckCircle color="#10B981" size={28} />
+                <Text className="text-emerald-400 text-[10px] mt-1 font-bold">
+                  Done ({batchImages.length})
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View className="w-10" />
+            )}
           </SafeAreaView>
         </CameraView>
       </View>
