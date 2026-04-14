@@ -1,6 +1,6 @@
 // app/camera.tsx
 
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Stack, useRouter } from "expo-router";
 import { CheckCircle, X } from "lucide-react-native";
@@ -126,19 +126,16 @@ export default function CameraScreen() {
             edges={["top"]}
             style={{ backgroundColor: "rgba(0,0,0,1)" }}
           >
-            <View className="flex-row justify-between items-center px-6 py-3">
+            <View className="flex-row justify-between items-center px-[16px] pt-[16px] pb-[12px]">
               <TouchableOpacity onPress={() => router.back()}>
-                <X color="white" size={30} />
+                <X color="white" size={24} />
               </TouchableOpacity>
-              <View className="flex-row space-x-6">
+              <View className="flex-row gap-[10px]">
                 <TouchableOpacity>
-                  <Ionicons name="flash-outline" size={26} color="white" />
+                  <Ionicons name="flash-outline" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity>
-                  <MaterialCommunityIcons size={28} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Ionicons name="ellipsis-vertical" size={26} color="white" />
+                  <Ionicons name="ellipsis-vertical" size={24} color="white" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -146,8 +143,6 @@ export default function CameraScreen() {
 
           {/* ── Viewfinder ── */}
           <View className="flex-1 items-center justify-center">
-            <View className="w-[85%] h-64 border-2 border-emerald-400/50 rounded-lg" />
-
             {mode === "Batch" && batchImages.length > 0 && (
               <View className="absolute top-2 right-[7%] bg-emerald-500 rounded-full w-8 h-8 items-center justify-center">
                 <Text className="text-white font-bold text-sm">
@@ -189,7 +184,7 @@ export default function CameraScreen() {
           {/* ── Bottom Controls ── */}
           <SafeAreaView
             edges={["bottom"]}
-            style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
           >
             <View className="py-4">
               <ScrollView
