@@ -3,6 +3,7 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Stack, useRouter } from "expo-router";
+import { X } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -78,7 +79,7 @@ export default function CameraScreen() {
           {/* ... (Existing UI code from previous response) */}
           <View className="flex-row justify-between items-center px-6 py-4">
             <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="close" size={30} color="white" />
+              <X color="white" size={30} />
             </TouchableOpacity>
             <View className="flex-row space-x-6">
               <TouchableOpacity>
