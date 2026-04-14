@@ -191,7 +191,7 @@ export default function CameraScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 146 }}
+                contentContainerStyle={{ paddingHorizontal: 145 }}
               >
                 {(["Single", "Batch"] as const).map((m) => (
                   <TouchableOpacity
