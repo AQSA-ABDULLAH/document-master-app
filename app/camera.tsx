@@ -187,20 +187,20 @@ export default function CameraScreen() {
             edges={["bottom"]}
             style={{ backgroundColor: "rgba(0,0,0,1)" }}
           >
-            <View className="py-4">
+            <View className="pt-[16px] pb-[22px]">
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 20 }}
+                contentContainerStyle={{ paddingHorizontal: 146 }}
               >
                 {(["Single", "Batch"] as const).map((m) => (
                   <TouchableOpacity
                     key={m}
                     onPress={() => handleModeChange(m)}
-                    className="mr-6"
+                    className="mr-[18px]"
                   >
                     <Text
-                      className={`text-sm font-bold ${
+                      className={`text-[12px] tracking-[1px] font-bold ${
                         mode === m ? "text-emerald-400" : "text-white/60"
                       }`}
                     >
