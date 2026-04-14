@@ -33,7 +33,6 @@ export default function PreviewScreen() {
 
       {/* Bottom Actions */}
       <View className="absolute bottom-10 w-full flex-row justify-around items-center px-6">
-        
         {/* Retake */}
         <TouchableOpacity
           onPress={() => router.back()}
