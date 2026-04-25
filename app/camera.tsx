@@ -122,7 +122,7 @@ export default function CameraScreen() {
 
       <View className="flex-1 bg-black">
         <CameraView style={{ flex: 1 }} facing="back" ref={cameraRef}>
-          {/* ── SafeAreaView wraps only the top bar so it pushes below status bar ── */}
+          {/* Top Bar */}
           <SafeAreaView
             edges={["top"]}
             style={{ backgroundColor: "rgba(0,0,0,1)" }}
@@ -236,6 +236,7 @@ export default function CameraScreen() {
                 />
               </TouchableOpacity>
 
+              {/* Import File Buttons */}
               <TouchableOpacity className="items-center">
                 <Ionicons name="folder-open-outline" size={28} color="white" />
                 <Text className="text-white text-[10px] mt-1">
