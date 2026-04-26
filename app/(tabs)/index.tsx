@@ -1,14 +1,13 @@
 import HomeScreen from "@/components/home/HomeScreen";
 import React from "react";
-import { ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, View } from "react-native";
 
 export default function Home() {
   return (
-    <SafeAreaView className="bg-white h-screen">
+    <View className="bg-white h-screen mt-12 py-6 px-5">
       <ScrollView showsVerticalScrollIndicator={false}>
         <HomeScreen />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -45,15 +45,15 @@ export default function HomeScreen() {
 
   return (
     <>
-      {/* 🔹 Header + Search */}
-      <View className="px-5 pt-4">
-        <View className="flex-row justify-between items-center mb-6">
+      {/* Header & Search Bar */}
+      <View>
+        <View className="mb-6">
           <Text className="text-2xl font-bold italic text-slate-900">
             Document Master
           </Text>
         </View>
 
-        <View className="flex-row items-center px-4 py-3 rounded-2xl border border-slate-300">
+        <View className="flex-row items-center py-3 px-4 rounded-2xl border border-slate-300">
           <Ionicons name="search-outline" size={20} color="#64748B" />
           <TextInput
             placeholder="Search documents and tools..."
@@ -64,7 +64,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Tools Grid */}
-      <View className="px-5 mt-8 flex-row flex-wrap justify-between">
+      <View className="mt-8 flex-row flex-wrap justify-between">
         <ToolIcon
           icon={<WandSparkles size={28} color="#6366F1" />}
           label="Smart Scan"
@@ -115,7 +115,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Recent Files */}
-      <View className="px-5 mt-6 pb-20">
+      <View className="mt-6 pb-20">
         <View className="flex-row justify-between items-center mb-10">
           <Text className="text-lg font-bold text-slate-900">Recent Files</Text>
           <TouchableOpacity>
