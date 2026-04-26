@@ -84,9 +84,9 @@ export default function HomeScreen() {
         />
 
         <ToolIcon
-          icon={<FileUp size={28} color="#10B981" />}
+          icon={<FileUp size={28} color="#06B6D4" />}
           label="Import Files"
-          bgColor="bg-emerald-500/10"
+          bgColor="bg-cyan-500/10"
         />
 
         <ToolIcon
