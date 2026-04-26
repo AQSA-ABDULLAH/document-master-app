@@ -142,7 +142,7 @@ export default function HomeScreen() {
       {/* Floating Camera Button */}
       <TouchableOpacity
         onPress={() => router.push("/camera")}
-        className="absolute bottom-2 right-6 w-16 h-16 bg-indigo-600 rounded-full items-center justify-center shadow-lg"
+        className="absolute bottom-5 right-0 w-16 h-16 bg-indigo-600 rounded-full items-center justify-center shadow-lg"
       >
         <Ionicons name="camera" size={30} color="white" />
       </TouchableOpacity>

@@ -1,7 +1,10 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, View } from "react-native";
 
-// Reusable Component for File List Item
+// Lucide Icons
+import { FileUp, ImageUp } from "lucide-react-native";
+
+// File List Item
 const FileItem = ({
   title,
   date,
@@ -48,7 +51,7 @@ export default function MyFiles() {
   return (
     <View className="bg-white flex-1">
       {/* Header Section */}
-      <View className="flex-row">
+      <View className="flex-row mb-6">
         <Text className=" text-2xl font-bold">My files</Text>
         <TouchableOpacity>
           <Ionicons name="search-outline" size={24} color="white" />
@@ -56,19 +59,19 @@ export default function MyFiles() {
       </View>
 
       {/* 1. Import Section Cards (Ref Image Top) */}
-      <View className="flex-row justify-between mt-2">
+      <View className="flex-row justify-between">
         <TouchableOpacity className=" w-[48%] p-6 rounded-3xl items-center border border-slate-700">
           <View className="bg-indigo-500/20 p-3 rounded-2xl mb-3">
-            <Ionicons name="cloud-upload" size={28} color="#6366F1" />
+            <ImageUp color="#6366F1" size={32} />
           </View>
-          <Text className=" font-medium text-center">Import Files</Text>
+          <Text className=" font-medium text-center">Import Images</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className=" w-[48%] p-6 rounded-3xl items-center border border-slate-700">
           <View className="bg-emerald-500/20 p-3 rounded-2xl mb-3">
-            <Ionicons name="images" size={28} color="#10B981" />
+            <FileUp color="#10B981" size={32} />
           </View>
-          <Text className=" font-medium text-center">Import Images</Text>
+          <Text className=" font-medium text-center">Import Files</Text>
         </TouchableOpacity>
       </View>
 
