@@ -1,14 +1,13 @@
-import { ThemedText } from "@/components/themed-text";
+import SettingsScreen from "@/components/settings/SettingsScreen";
 import React from "react";
-import { ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, View } from "react-native";
 
 export default function Settings() {
   return (
-    <SafeAreaView className="bg-white h-screen mt-12 py-6 px-5">
+    <View className="bg-white h-screen mt-12 py-6 px-5">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedText type="title">Settings</ThemedText>
+        <SettingsScreen />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

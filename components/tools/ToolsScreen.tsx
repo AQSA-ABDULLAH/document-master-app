@@ -49,11 +49,7 @@ const Section = ({
 
 export default function ToolsScreen() {
   return (
-    <ScrollView
-      className="flex-1"
-      contentContainerStyle={{ paddingTop: 20, paddingBottom: 100 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView className="flex-1 py-6">
       <Text className="text-3xl font-bold text-slate-900 mb-6">Tools</Text>
 
       {/* SCAN SECTION */}
