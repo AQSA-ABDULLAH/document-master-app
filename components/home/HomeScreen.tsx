@@ -5,17 +5,17 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Lucide Icons
 import {
-    FileImage,
-    FileText,
-    FileType,
-    FileUp,
-    Grip,
-    ImageUp,
-    ScanText,
-    WandSparkles,
+  FileImage,
+  FileText,
+  FileType,
+  FileUp,
+  Grip,
+  ImageUp,
+  ScanText,
+  WandSparkles,
 } from "lucide-react-native";
 
-// 🔹 Reusable Tool Component
+// Reusable Tool Component
 const ToolIcon = ({
   icon,
   label,
@@ -63,7 +63,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* 🔹 Tools Grid */}
+      {/* Tools Grid */}
       <View className="px-5 mt-8 flex-row flex-wrap justify-between">
         <ToolIcon
           icon={<WandSparkles size={28} color="#6366F1" />}
@@ -114,7 +114,7 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* 🔹 Recent Files */}
+      {/* Recent Files */}
       <View className="px-5 mt-6 pb-20">
         <View className="flex-row justify-between items-center mb-10">
           <Text className="text-lg font-bold text-slate-900">Recent Files</Text>
