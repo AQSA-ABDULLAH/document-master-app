@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Settings() {
   return (
-    <SafeAreaView className="bg-white h-screen p-11">
+    <SafeAreaView className="bg-white h-screen mt-12 py-6 px-5">
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedText type="title">Settings</ThemedText>
       </ScrollView>
