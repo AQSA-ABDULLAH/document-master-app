@@ -1,0 +1,58 @@
+{
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "May 2025",
+    "sections": [
+      {
+        "heading": "1. Information We Collect",
+        "body": "We do not collect any personal information. All documents you scan are stored locally on your device only."
+      },
+      {
+        "heading": "2. Camera & Storage",
+        "body": "We request camera and storage permissions solely to scan and save documents on your device."
+      },
+      {
+        "heading": "3. Third-Party Services",
+        "body": "This app does not share any data with third parties."
+      },
+      {
+        "heading": "4. Changes",
+        "body": "We may update this policy in the future. Continued use of the app means you accept any changes."
+      },
+      {
+        "heading": "5. Contact",
+        "body": "For questions, reach us via the Play Store review section."
+      }
+    ]
+  },
+  "termsOfUse": {
+    "title": "Terms of Use",
+    "lastUpdated": "May 2025",
+    "sections": [
+      {
+        "heading": "1. Acceptance",
+        "body": "By using Document Master, you agree to these terms."
+      },
+      {
+        "heading": "2. Usage",
+        "body": "This app is provided for personal and professional document scanning purposes only."
+      },
+      {
+        "heading": "3. Restrictions",
+        "body": "You may not use this app for any illegal or unauthorized purpose."
+      },
+      {
+        "heading": "4. Disclaimer",
+        "body": "The app is provided as-is without any warranties of any kind."
+      },
+      {
+        "heading": "5. Limitation of Liability",
+        "body": "We are not liable for any damages arising from your use of the app."
+      },
+      {
+        "heading": "6. Changes",
+        "body": "We reserve the right to modify these terms at any time."
+      }
+    ]
+  }
+}
