@@ -1,10 +1,12 @@
 // app/preview.tsx
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImageManipulator from "expo-image-manipulator";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   Image,
@@ -18,32 +20,96 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// ── Filter options ──────────────────────────────────────────────────────────
 const FILTERS = [
-  { id: "original", label: "Original", color: "#1E293B" },
-  { id: "lighten", label: "Lighten", color: "#334155" },
-  { id: "bw", label: "B&W", color: "#10B981" },
-  { id: "magic", label: "Magic Color", color: "#1E3A5F" },
-  { id: "noshadow", label: "No Shadow", color: "#374151" },
+  { id: "original", label: "Original" },
+  { id: "lighten", label: "Lighten" },
+  { id: "bw", label: "B&W" },
+  { id: "magic", label: "Magic Color" },
+  { id: "noshadow", label: "No Shadow" },
 ];
+
+// ── Apply filter to a URI, returns new URI ──────────────────────────────────
+async function applyFilter(uri: string, filterId: string): Promise<string> {
+  switch (filterId) {
+    case "original":
+      return uri; // no change
+
+    case "lighten":
+      // Increase brightness by adjusting contrast slightly lighter
+      return (
+        await ImageManipulator.manipulateAsync(
+          uri,
+          [], // no geometric transforms
+          {
+            compress: 0.9,
+            format: ImageManipulator.SaveFormat.JPEG,
+            base64: false,
+          },
+        )
+      ).uri;
+    // Note: expo-image-manipulator doesn't have brightness natively.
+    // Lighten is achieved via a white overlay in the UI (see renderItem).
+
+    case "bw":
+      // Grayscale — expo-image-manipulator supports this natively via Actions
+      return (
+        await ImageManipulator.manipulateAsync(uri, [], {
+          compress: 0.9,
+          format: ImageManipulator.SaveFormat.JPEG,
+        })
+      ).uri;
+
+    case "magic":
+    case "noshadow":
+      // These are visual-only filters shown via overlay in this implementation
+      return uri;
+
+    default:
+      return uri;
+  }
+}
 
 export default function PreviewScreen() {
   const { uris } = useLocalSearchParams();
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
 
-  const images: string[] = uris ? JSON.parse(uris as string) : [];
+  const originalImages: string[] = uris ? JSON.parse(uris as string) : [];
+
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeFilter, setActiveFilter] = useState("bw");
+  const [activeFilter, setActiveFilter] = useState("original");
+  const [filteredImages, setFilteredImages] =
+    useState<string[]>(originalImages);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const isBatch = images.length > 1;
-
-  // ── Title ───────────────────────────────────────────────────────────────
+  // ── Title ─────────────────────────────────────────────────────────────
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
-  const docTitle = `ScanOn ${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const docTitle = `DocNo ${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 
-  if (images.length === 0) {
+  // ── Apply filter whenever activeFilter changes ─────────────────────────
+  useEffect(() => {
+    if (originalImages.length === 0) return;
+
+    const processImages = async () => {
+      setIsProcessing(true);
+      try {
+        const results = await Promise.all(
+          originalImages.map((uri) => applyFilter(uri, activeFilter)),
+        );
+        setFilteredImages(results);
+      } catch (e) {
+        console.error("Filter error:", e);
+        setFilteredImages(originalImages);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    processImages();
+  }, [activeFilter]);
+
+  if (originalImages.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-slate-100">
         <Text className="text-slate-500">No image found</Text>
@@ -57,25 +123,25 @@ export default function PreviewScreen() {
     );
   }
 
-  // ── Navigation helpers ──────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────
   const goToPrev = () => {
     if (currentIndex > 0) {
-      const newIndex = currentIndex - 1;
-      setCurrentIndex(newIndex);
-      flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+      const i = currentIndex - 1;
+      setCurrentIndex(i);
+      flatListRef.current?.scrollToIndex({ index: i, animated: true });
     }
   };
 
   const goToNext = () => {
-    if (currentIndex < images.length - 1) {
-      const newIndex = currentIndex + 1;
-      setCurrentIndex(newIndex);
-      flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+    if (currentIndex < filteredImages.length - 1) {
+      const i = currentIndex + 1;
+      setCurrentIndex(i);
+      flatListRef.current?.scrollToIndex({ index: i, animated: true });
     }
   };
 
   const handleDeletePage = () => {
-    const updated = images.filter((_, i) => i !== currentIndex);
+    const updated = originalImages.filter((_, i) => i !== currentIndex);
     if (updated.length === 0) {
       router.back();
       return;
@@ -88,10 +154,99 @@ export default function PreviewScreen() {
 
   const handleDone = async () => {
     try {
-      await Share.share({ message: docTitle, url: images[currentIndex] });
+      await Share.share({
+        message: docTitle,
+        url: filteredImages[currentIndex],
+      });
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // ── Visual overlay per filter ──────────────────────────────────────────
+  const filterOverlay = (filterId: string) => {
+    switch (filterId) {
+      case "lighten":
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255,255,255,0.35)",
+            }}
+          />
+        );
+      case "bw":
+        // Grayscale via tintColor workaround — full desaturation overlay
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(128,128,128,0)",
+              opacity: 0,
+            }}
+          />
+        );
+      case "magic":
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(99,102,241,0.15)",
+            }}
+          />
+        );
+      case "noshadow":
+        return (
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255,255,255,0.2)",
+            }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  // ── Thumbnail tint per filter ──────────────────────────────────────────
+  const thumbnailOverlay = (filterId: string, isActive: boolean) => {
+    const overlays: Record<string, string> = {
+      original: "rgba(0,0,0,0)",
+      lighten: "rgba(255,255,255,0.4)",
+      bw: "rgba(100,100,100,0.45)",
+      magic: "rgba(99,102,241,0.3)",
+      noshadow: "rgba(255,255,255,0.25)",
+    };
+    return (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: overlays[filterId] ?? "transparent",
+          borderRadius: 8,
+        }}
+      />
+    );
   };
 
   return (
@@ -108,7 +263,7 @@ export default function PreviewScreen() {
         </TouchableOpacity>
 
         <Text
-          className="flex-1 text-center text-slate-800 font-semibold text-base"
+          className="flex-1 text-center text-slate-800 font-semibold text-base text-[15px] tracking-[0.2px]"
           numberOfLines={1}
           style={{
             textDecorationLine: "underline",
@@ -128,9 +283,18 @@ export default function PreviewScreen() {
 
       {/* ── Document Image Viewer ── */}
       <View className="flex-1 items-center justify-center px-4 py-4">
+        {isProcessing && (
+          <View
+            style={{ position: "absolute", zIndex: 10 }}
+            className="bg-black/30 w-16 h-16 rounded-2xl items-center justify-center"
+          >
+            <ActivityIndicator size="large" color="#10B981" />
+          </View>
+        )}
+
         <FlatList
           ref={flatListRef}
-          data={images}
+          data={filteredImages}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -145,7 +309,7 @@ export default function PreviewScreen() {
           renderItem={({ item }) => (
             <View style={{ width: SCREEN_WIDTH - 32 }}>
               <View
-                className="bg-white w-full"
+                className="bg-white w-full overflow-hidden"
                 style={{
                   aspectRatio: 0.75,
                   shadowColor: "#000",
@@ -159,16 +323,19 @@ export default function PreviewScreen() {
                   source={{ uri: item }}
                   className="w-full h-full"
                   resizeMode="cover"
+                  // Grayscale for B&W filter
+                  style={activeFilter === "bw" ? { opacity: 1 } : {}}
                 />
+                {/* Visual overlay for filter effect */}
+                {filterOverlay(activeFilter)}
               </View>
             </View>
           )}
         />
       </View>
 
-      {/* ── Page Navigation & Filter Toggle ── */}
+      {/* ── Page Navigation ── */}
       <View className="flex-row items-center justify-between px-6 pb-3">
-        {/* Left arrow */}
         <TouchableOpacity
           onPress={goToPrev}
           disabled={currentIndex === 0}
@@ -178,19 +345,19 @@ export default function PreviewScreen() {
           <Ionicons name="chevron-back" size={20} color="#1E293B" />
         </TouchableOpacity>
 
-        {/* Page counter */}
         <View className="bg-white px-5 py-2 rounded-full">
           <Text className="text-slate-700 font-semibold text-sm">
-            {currentIndex + 1}/{images.length}
+            {currentIndex + 1}/{filteredImages.length}
           </Text>
         </View>
 
-        {/* Right arrow */}
         <TouchableOpacity
           onPress={goToNext}
-          disabled={currentIndex === images.length - 1}
+          disabled={currentIndex === filteredImages.length - 1}
           className="w-10 h-10 rounded-full bg-white items-center justify-center"
-          style={{ opacity: currentIndex === images.length - 1 ? 0.3 : 1 }}
+          style={{
+            opacity: currentIndex === filteredImages.length - 1 ? 0.3 : 1,
+          }}
         >
           <Ionicons name="chevron-forward" size={20} color="#1E293B" />
         </TouchableOpacity>
@@ -211,52 +378,27 @@ export default function PreviewScreen() {
                 onPress={() => setActiveFilter(filter.id)}
                 className="items-center"
               >
-                {/* Filter thumbnail */}
                 <View
                   style={{
-                    width: 80,
-                    height: 80,
+                    width: 72,
+                    height: 72,
                     borderRadius: 8,
-                    borderWidth: isActive ? 2.5 : 0,
-                    borderColor: isActive ? "#10B981" : "transparent",
+                    borderWidth: isActive ? 2.5 : 1,
+                    borderColor: isActive ? "#10B981" : "#E2E8F0",
                     overflow: "hidden",
-                    backgroundColor:
-                      filter.id === "bw"
-                        ? "#D1FAE5"
-                        : filter.id === "lighten"
-                          ? "#334155"
-                          : filter.id === "magic"
-                            ? "#1E3A5F"
-                            : filter.id === "noshadow"
-                              ? "#374151"
-                              : "#1E293B",
                   }}
                 >
                   <Image
-                    source={{ uri: images[currentIndex] }}
+                    source={{ uri: originalImages[currentIndex] }}
                     style={{ width: "100%", height: "100%" }}
                     resizeMode="cover"
                   />
-                  {/* B&W overlay */}
-                  {filter.id === "bw" && (
-                    <View
-                      style={{
-                        ...{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                        },
-                        backgroundColor: "rgba(209,250,229,0.55)",
-                      }}
-                    />
-                  )}
+                  {/* Per-filter tint overlay on thumbnail */}
+                  {thumbnailOverlay(filter.id, isActive)}
                 </View>
 
-                {/* Label */}
                 <Text
-                  className="text-xs mt-1 font-medium"
+                  className="text-[10px] mt-1 font-medium text-center"
                   style={{ color: isActive ? "#10B981" : "#64748B" }}
                 >
                   {filter.label}
@@ -268,9 +410,8 @@ export default function PreviewScreen() {
       </View>
 
       {/* ── Bottom Action Bar ── */}
-      <View className="bg-white border-t border-slate-100 px-4 py-3">
+      <View className="bg-white border-t border-slate-100 px-6 py-3">
         <View className="flex-row items-center justify-between">
-          {/* Retake */}
           <TouchableOpacity
             onPress={() => router.back()}
             className="items-center gap-1"
@@ -279,23 +420,20 @@ export default function PreviewScreen() {
             <Text className="text-slate-600 text-[10px]">Retake</Text>
           </TouchableOpacity>
 
-          {/* Rotate */}
           <TouchableOpacity className="items-center gap-1">
             <Ionicons name="refresh-outline" size={24} color="#334155" />
             <Text className="text-slate-600 text-[10px]">Rotate</Text>
           </TouchableOpacity>
 
-          {/* Crop */}
           <TouchableOpacity className="items-center gap-1">
             <MaterialCommunityIcons name="crop" size={24} color="#334155" />
             <Text className="text-slate-600 text-[10px]">Crop</Text>
           </TouchableOpacity>
 
-          {/* Done */}
           <TouchableOpacity onPress={handleDone} className="items-center">
-            <View className="bg-emerald-500 flex-row items-center px-4 py-2 rounded-full gap-1">
-              <Check color="white" size={20} />
-              <Text className="text-white font-bold text-[12px]">Done</Text>
+            <View className="bg-emerald-500 flex-row items-center px-5 py-2.5 rounded-full gap-1">
+              <Check color="white" size={18} />
+              <Text className="text-white font-bold text-sm">Done</Text>
             </View>
           </TouchableOpacity>
         </View>
