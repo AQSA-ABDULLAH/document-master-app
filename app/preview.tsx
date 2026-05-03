@@ -11,7 +11,6 @@ import {
   FlatList,
   Image,
   ScrollView,
-  Share,
   Text,
   TouchableOpacity,
   View,
@@ -152,15 +151,14 @@ export default function PreviewScreen() {
     });
   };
 
-  const handleDone = async () => {
-    try {
-      await Share.share({
-        message: docTitle,
-        url: filteredImages[currentIndex],
-      });
-    } catch (e) {
-      console.error(e);
-    }
+  const handleDone = () => {
+    router.push({
+      pathname: "/docViewer",
+      params: {
+        uris: JSON.stringify(filteredImages),
+        title: docTitle,
+      },
+    });
   };
 
   // ── Visual overlay per filter ──────────────────────────────────────────
