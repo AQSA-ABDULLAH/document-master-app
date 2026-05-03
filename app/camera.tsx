@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Stack, useRouter } from "expo-router";
-import { X } from "lucide-react-native";
+import { Check, Undo2, X } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -281,7 +281,7 @@ export default function CameraScreen() {
             style={{ backgroundColor: "rgba(0,0,0,1)" }}
           >
             {/* Mode Tabs */}
-            <View className="pt-4 pb-5">
+            <View className="pt-4 pb-3">
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -310,18 +310,30 @@ export default function CameraScreen() {
 
             {/* Shutter Row */}
             <View className="flex-row items-center justify-between px-8 pb-4">
-              {/* Import Images */}
-              <TouchableOpacity
-                onPress={handleImportImages}
-                className="items-center"
-              >
-                <Ionicons name="images-outline" size={28} color="white" />
-                <Text className="text-white text-[10px] mt-1">
-                  Import Images
-                </Text>
-              </TouchableOpacity>
+              {/* LEFT: Back (undo last) in batch, or Import Images in single */}
+              {mode === "Batch" && batchImages.length > 0 ? (
+                <TouchableOpacity
+                  onPress={() => removeBatchImage(batchImages.length - 1)}
+                  className="flex-row px-5 bg-white/20 pt-[6px] pb-[10px] rounded-full gap-1 items-center"
+                >
+                  <Undo2 color="white" size={20} />
+                  <Text className="text-white font-bold text-[12px] mt-1">
+                    Back
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleImportImages}
+                  className="items-center"
+                >
+                  <Ionicons name="images-outline" size={28} color="white" />
+                  <Text className="text-white text-[10px] mt-1">
+                    Import Images
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              {/* Shutter Button */}
+              {/* CENTER: Shutter */}
               <TouchableOpacity
                 onPress={handleCapture}
                 disabled={isCapturing}
@@ -336,31 +348,35 @@ export default function CameraScreen() {
                 />
               </TouchableOpacity>
 
-              {/* Import Files */}
-              <TouchableOpacity
-                onPress={handleImportFiles}
-                className="items-center"
-              >
-                <Ionicons name="folder-open-outline" size={28} color="white" />
-                <Text className="text-white text-[10px] mt-1">
-                  Import Files
-                </Text>
-              </TouchableOpacity>
+              {/* RIGHT: Done button in batch (after ≥1 image) */}
+              {mode === "Batch" && batchImages.length > 0 ? (
+                <TouchableOpacity
+                  onPress={proceedWithBatch}
+                  className="items-center"
+                >
+                  <View className="bg-emerald-500 flex-row items-center px-4 py-2 rounded-full gap-1">
+                    <Check color="white" size={20} />
+                    <Text className="text-white font-bold text-[12px]">
+                      Done
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleImportFiles}
+                  className="items-center"
+                >
+                  <Ionicons
+                    name="folder-open-outline"
+                    size={28}
+                    color="white"
+                  />
+                  <Text className="text-white text-[10px] mt-1">
+                    Import Files
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
-
-            {/* Batch Done Button */}
-            {/* {mode === "Batch" && batchImages.length > 0 && (
-              <TouchableOpacity
-                onPress={proceedWithBatch}
-                className="flex-row items-center justify-center gap-2 mb-4"
-              >
-                <CheckCircle color="#10B981" size={22} />
-                <Text className="text-emerald-400 font-bold text-sm">
-                  Done — {batchImages.length} page
-                  {batchImages.length !== 1 ? "s" : ""}
-                </Text>
-              </TouchableOpacity>
-            )} */}
           </SafeAreaView>
         </View>
       </View>
