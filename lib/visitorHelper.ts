@@ -1,8 +1,9 @@
-import { API_URL } from "@/constants/config";
+// lib/visitorHelper.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 import uuid from "react-native-uuid";
+import { API_URL } from "./config"; // ◄ Fixed: Added missing import
 
 // ── Get existing or generate new visitorId ─────────────────────────────────
 export const getOrGenerateVisitorId = async (): Promise<string> => {
@@ -35,11 +36,9 @@ export const registerVisitorAPI = async () => {
   });
 
   const data = await response.json();
-
   if (!data.success) {
     throw new Error(data.message || "Failed to register visitor");
   }
-
   return data;
 };
 
@@ -53,11 +52,9 @@ export const getVisitorProfileAPI = async () => {
   });
 
   const data = await response.json();
-
   if (!data.success) {
     throw new Error(data.message || "Failed to get visitor profile");
   }
-
   return data;
 };
 
@@ -79,11 +76,9 @@ export const updateVisitorAPI = async (deviceInfo: {
   });
 
   const data = await response.json();
-
   if (!data.success) {
     throw new Error(data.message || "Failed to update visitor");
   }
-
   return data;
 };
 
@@ -97,11 +92,9 @@ export const deactivateVisitorAPI = async () => {
   });
 
   const data = await response.json();
-
   if (!data.success) {
     throw new Error(data.message || "Failed to deactivate visitor");
   }
-
   return data;
 };
 
@@ -115,10 +108,8 @@ export const deleteVisitorAPI = async () => {
   });
 
   const data = await response.json();
-
   if (!data.success) {
     throw new Error(data.message || "Failed to delete visitor");
   }
-
   return data;
 };

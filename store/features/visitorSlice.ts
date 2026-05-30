@@ -1,57 +1,42 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// store/features/visitorSlice.ts
+
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import * as Device from "expo-device";
-import { Platform } from "react-native";
-import uuid from "react-native-uuid";
+import {
+  getVisitorProfileAPI,
+  registerVisitorAPI,
+} from "../../lib/visitorHelper";
 
-const API_URL = "http://localhost:5000/api";
+interface VisitorState {
+  status: "idle" | "loading" | "success" | "error";
+  data: any;
+  isNew: boolean;
+}
 
-// ── Helper: get or generate visitorId ─────────────────────────────────────
-const getOrGenerateVisitorId = async (): Promise<string> => {
-  let visitorId = await AsyncStorage.getItem("visitor_id");
-  if (!visitorId) {
-    visitorId = uuid.v4() as string;
-    await AsyncStorage.setItem("visitor_id", visitorId);
-  }
-  return visitorId;
+const initialState: VisitorState = {
+  status: "idle",
+  data: null,
+  isNew: false,
 };
 
-// ── Thunk: Fetch visitor from backend ─────────────────────────────────────
+// ── Async Thunk for Fetching / Initializing Visitor ───────────────────────
 export const fetchVisitor = createAsyncThunk(
-  "visitor/fetch",
-  async (_, thunkAPI) => {
+  "visitor/fetchVisitor",
+  async (_, { rejectWithValue }) => {
     try {
-      const visitorId = await getOrGenerateVisitorId();
-
-      const response = await fetch(`${API_URL}/visitor/register`, {
-        method: "POST",
-        headers: {
-          "x-visitor-id": visitorId,
-          "x-platform": Platform.OS,
-          "x-app-version": "1.0.1",
-          "x-device-model": Device.modelName ?? "unknown",
-        },
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        return thunkAPI.rejectWithValue(data.message);
+      // 1. Attempt to get the existing profile
+      const response = await getVisitorProfileAPI();
+      return response.data;
+    } catch (error: any) {
+      // 2. If it fails because they don't exist yet, register them
+      // Note: You might want to adjust this catch block depending on your backend error codes
+      try {
+        const registerResponse = await registerVisitorAPI();
+        return registerResponse.data;
+      } catch (regError: any) {
+        return rejectWithValue(
+          regError.message || "Failed to handle visitor lifecycle",
+        );
       }
-
-      // Save full visitor data to AsyncStorage
-      await AsyncStorage.setItem("visitor_data", JSON.stringify(data.visitor));
-
-      console.log(
-        data.isNew
-          ? `🆕 New visitor registered: ${data.visitor.visitorId}`
-          : `👤 Returning visitor: ${data.visitor.visitorId}`,
-      );
-
-      return data.visitor;
-    } catch (err: any) {
-      console.error("❌ Visitor fetch error:", err.message);
-      return thunkAPI.rejectWithValue(err.message);
     }
   },
 );
@@ -59,13 +44,9 @@ export const fetchVisitor = createAsyncThunk(
 // ── Visitor Slice ──────────────────────────────────────────────────────────
 const visitorSlice = createSlice({
   name: "visitor",
-  initialState: {
-    status: "idle" as "idle" | "loading" | "success" | "error",
-    data: null as any,
-    isNew: false,
-  },
+  initialState,
   reducers: {
-    // Load visitor from AsyncStorage (returning user)
+    // Manually load visitor from local storage on app launch if desired
     loadVisitor: (state, action) => {
       state.data = action.payload;
       state.status = "success";
