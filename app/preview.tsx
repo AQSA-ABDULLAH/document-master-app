@@ -157,6 +157,7 @@ export default function PreviewScreen() {
       params: {
         uris: JSON.stringify(filteredImages),
         title: docTitle,
+        filter: activeFilter,
       },
     });
   };
