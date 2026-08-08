@@ -1,63 +1,79 @@
 // store/features/visitorSlice.ts
 
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {
-  getVisitorProfileAPI,
-  registerVisitorAPI,
-} from "../../lib/visitorHelper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { getUserLocation, getVisitor } from "../../lib/visitorHelper";
+
+export interface VisitorData {
+  visitor_id: string;
+  ip?: string;
+  city?: string;
+  country?: string;
+  [key: string]: any;
+}
 
 interface VisitorState {
   status: "idle" | "loading" | "success" | "error";
-  data: any;
-  isNew: boolean;
+  data: VisitorData | null;
+  isAllowed: boolean;
 }
 
 const initialState: VisitorState = {
   status: "idle",
   data: null,
-  isNew: false,
+  isAllowed: true,
 };
 
-// ── Async Thunk for Fetching / Initializing Visitor ───────────────────────
-export const fetchVisitor = createAsyncThunk(
-  "visitor/fetchVisitor",
-  async (_, { rejectWithValue }) => {
-    try {
-      // 1. Attempt to get the existing profile
-      const response = await getVisitorProfileAPI();
-      return response.data;
-    } catch (error: any) {
-      // 2. If it fails because they don't exist yet, register them
-      // Note: You might want to adjust this catch block depending on your backend error codes
-      try {
-        const registerResponse = await registerVisitorAPI();
-        return registerResponse.data;
-      } catch (regError: any) {
-        return rejectWithValue(
-          regError.message || "Failed to handle visitor lifecycle",
-        );
-      }
-    }
-  },
-);
+export const fetchVisitor = createAsyncThunk<
+  VisitorData,
+  void,
+  { rejectValue: string }
+>("visitor/fetch", async (_, thunkAPI) => {
+  try {
+    const visitor = await getVisitor();
 
-// ── Visitor Slice ──────────────────────────────────────────────────────────
+    await AsyncStorage.setItem(
+      "visitor_data",
+      JSON.stringify(visitor.visitor_data),
+    );
+
+    getUserLocation(visitor.visitor_data.visitor_id);
+
+    return visitor.visitor_data;
+  } catch (error) {
+    const err = error as Error;
+
+    if (err.message === "User denied Geolocation") {
+      const visitor = await getVisitor();
+
+      await AsyncStorage.setItem(
+        "visitor_data",
+        JSON.stringify(visitor.visitor_data),
+      );
+
+      return visitor.visitor_data;
+    }
+
+    return thunkAPI.rejectWithValue(err.message || "Unexpected error");
+  }
+});
+
 const visitorSlice = createSlice({
   name: "visitor",
   initialState,
   reducers: {
-    // Manually load visitor from local storage on app launch if desired
-    loadVisitor: (state, action) => {
+    loadVisitor: (state, action: PayloadAction<VisitorData>) => {
       state.data = action.payload;
       state.status = "success";
-      state.isNew = false;
     },
+
     clearVisitor: (state) => {
       state.data = null;
       state.status = "idle";
-      state.isNew = false;
+      state.isAllowed = true;
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchVisitor.pending, (state) => {
@@ -66,14 +82,31 @@ const visitorSlice = createSlice({
       .addCase(fetchVisitor.fulfilled, (state, action) => {
         state.status = "success";
         state.data = action.payload;
-        state.isNew = action.payload?.isNew || false;
       })
-      .addCase(fetchVisitor.rejected, (state) => {
+      .addCase(fetchVisitor.rejected, (state, action) => {
         state.status = "error";
-        state.data = null;
+
+        if (action.payload) {
+          try {
+            const message = JSON.parse(action.payload);
+
+            state.data = message.data ?? null;
+
+            if (message.error === "Visitor not allowed") {
+              state.isAllowed = false;
+            }
+          } catch {
+            state.data = null;
+            state.isAllowed = true;
+          }
+        } else {
+          state.data = null;
+          state.isAllowed = true;
+        }
       });
   },
 });
 
 export const { loadVisitor, clearVisitor } = visitorSlice.actions;
+
 export default visitorSlice.reducer;

@@ -1,7 +1,3 @@
-import AppLoading from "@/components/startup/Loading";
-import VisitorUser from "@/components/startup/VisitorUser";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import store from "@/store";
 import {
   DarkTheme,
   DefaultTheme,
@@ -12,31 +8,37 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import "react-native-reanimated";
 import { Provider } from "react-redux";
+
+import Loading from "@/components/startup/Loading";
+import VisitorUser from "@/components/startup/VisitorUser";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import store from "@/store";
+
 import "../global.css";
 
 export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-export default function RootLayout() {
+export default function RootLayout(): React.JSX.Element {
   const colorScheme = useColorScheme();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   return (
     <Provider store={store}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        {/* Visitor init — runs on every app launch */}
-        <VisitorUser setLoading={setLoading} />
+        <VisitorUser loading={loading} setLoading={setLoading} />
 
-        {/* Full screen loading spinner */}
-        <AppLoading loading={loading} />
+        <Loading loading={loading} setLoading={setLoading} />
 
-        {/* Main app — always rendered but hidden behind loading */}
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
+            options={{
+              presentation: "modal",
+              title: "Modal",
+            }}
           />
         </Stack>
 

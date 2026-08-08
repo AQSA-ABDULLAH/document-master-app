@@ -1,115 +1,47 @@
 // lib/visitorHelper.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Device from "expo-device";
-import { Platform } from "react-native";
 import uuid from "react-native-uuid";
-import { API_URL } from "./config"; // ◄ Fixed: Added missing import
+import API_URL from "./config";
 
-// ── Get existing or generate new visitorId ─────────────────────────────────
-export const getOrGenerateVisitorId = async (): Promise<string> => {
-  let visitorId = await AsyncStorage.getItem("visitor_id");
-  if (!visitorId) {
-    visitorId = uuid.v4() as string;
-    await AsyncStorage.setItem("visitor_id", visitorId);
+const log = (...args: unknown[]): void => {
+  if (process.env.NODE_ENV === "development") {
+    console.log(...args);
   }
-  return visitorId;
 };
 
-// ── Build common visitor headers ───────────────────────────────────────────
-export const getVisitorHeaders = async (): Promise<Record<string, string>> => {
-  const visitorId = await getOrGenerateVisitorId();
-  return {
-    "x-visitor-id": visitorId,
-    "x-platform": Platform.OS,
-    "x-app-version": "1.0.1",
-    "x-device-model": Device.modelName ?? "unknown",
-  };
-};
-
-// ── API: Register new visitor ──────────────────────────────────────────────
-export const registerVisitorAPI = async () => {
-  const headers = await getVisitorHeaders();
-
-  const response = await fetch(`${API_URL}/visitor/register`, {
-    method: "POST",
-    headers,
-  });
-
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || "Failed to register visitor");
+const logError = (...args: unknown[]): void => {
+  if (process.env.NODE_ENV === "development") {
+    console.error(...args);
   }
-  return data;
 };
 
-// ── API: Get visitor profile ───────────────────────────────────────────────
-export const getVisitorProfileAPI = async () => {
-  const headers = await getVisitorHeaders();
+interface Visitor {
+  visitor_id: string;
+  country?: string;
+  city?: string;
+}
 
-  const response = await fetch(`${API_URL}/visitor/profile`, {
-    method: "GET",
-    headers,
-  });
+const getVisitor = async (): Promise<Visitor> => {
+  let visitor_id = await AsyncStorage.getItem("visitor_id");
 
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || "Failed to get visitor profile");
+  if (!visitor_id) {
+    visitor_id = uuid.v4() as string;
+    await AsyncStorage.setItem("visitor_id", visitor_id);
   }
-  return data;
-};
 
-// ── API: Update visitor device info ───────────────────────────────────────
-export const updateVisitorAPI = async (deviceInfo: {
-  platform?: string;
-  version?: string;
-  deviceModel?: string;
-}) => {
-  const headers = await getVisitorHeaders();
+  try {
+    const { data } = await API_URL.get<Visitor>(
+      `/visitors?visitor_id=${visitor_id}`,
+    );
 
-  const response = await fetch(`${API_URL}/visitor/profile`, {
-    method: "PATCH",
-    headers: {
-      ...headers,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ deviceInfo }),
-  });
-
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || "Failed to update visitor");
+    return data;
+  } catch (e) {
+    if (e instanceof Error) {
+      logError("Error while fetching visitor:", e.message);
+    }
+    throw e;
   }
-  return data;
 };
 
-// ── API: Deactivate visitor ────────────────────────────────────────────────
-export const deactivateVisitorAPI = async () => {
-  const headers = await getVisitorHeaders();
+export { getVisitor };
 
-  const response = await fetch(`${API_URL}/visitor/profile/deactivate`, {
-    method: "PATCH",
-    headers,
-  });
-
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || "Failed to deactivate visitor");
-  }
-  return data;
-};
-
-// ── API: Delete visitor ────────────────────────────────────────────────────
-export const deleteVisitorAPI = async () => {
-  const headers = await getVisitorHeaders();
-
-  const response = await fetch(`${API_URL}/visitor/profile`, {
-    method: "DELETE",
-    headers,
-  });
-
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(data.message || "Failed to delete visitor");
-  }
-  return data;
-};

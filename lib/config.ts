@@ -1,3 +1,9 @@
 // lib/config.ts
 
-export const API_URL = "https://document-master-server.vercel.app/api";
+import axios from "axios";
+
+const API_URL = axios.create({
+  baseURL: "https://document-master-server.vercel.app/api",
+});
+
+export default API_URL;
